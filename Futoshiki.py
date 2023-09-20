@@ -1,6 +1,8 @@
 ##EGR425
 ##Futoshiki Solver 
 
+
+=======
 import os
 numbers = []
 logic = []
@@ -38,4 +40,5 @@ def ReadIn():
 
 main()
 =======
+
 
