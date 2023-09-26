@@ -81,6 +81,22 @@ def max_score(board,c):
     total = (2*y)+(2*x)
     return total
 
+def set(board,pop):
+#np.nonzero indexs any nonzero values in the original board
+#np.transpose groups output by element rather than dimension
+    index = np.transpose(np.nonzero(board))
+    pop_dim = pop.shape #3d
+    index_dim = index.shape #2d
+#will input given #'s to each agent
+    for z in range(pop_dim[0]):
+        # the number of given #'s is equal to the number of rows in index
+        for x in range(index_dim[0]):
+            #sets values in pop equal to values in board by index
+            pop[z,index[x,0],index[x,1]]= board[index[x,0],index[x,1]]
+
+    return pop
+
+
 main()
 =======
 
