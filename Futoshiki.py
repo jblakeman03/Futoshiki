@@ -14,7 +14,8 @@ def main():
     numbers,logic,solution = ReadIn()
     ##Create the initial population
     initPop(numbers)
-    max = max_score(number,logic)  
+    max = max_score(numbers,logic) 
+    printBoard(numbers,logic) 
      
 ##Function to read in values and returns them in 2D Arrays  
 def ReadIn():
@@ -65,6 +66,50 @@ def ReadIn():
 
     ##Returns temp arrays
     return nums, log, sol
+
+##Function to print out board with logic symbols
+##Basic approach is tp create an array with constraint rows between number rows and if there is a logic constraint put symbol between elements. 
+##The iterate through each row, concatonate each element, then print the row
+def printBoard(nums, log):
+    ##get number of rows for numbers and logic arrays
+    (numRows, numCol) = np.shape(nums)
+    (logRows, logCol) = np.shape(log)
+
+    ##Combined rows is the numbers plus constraints. Get the size by taking number of rows in numbers and adding one less than rows in numbers
+
+    combinedRows = numRows + (numRows -1)
+    combined = np.full((combinedRows,combinedRows),' ', dtype = str)
+    ##Iterate through numbers and add them to their correct spot in combined array
+    for i in range(numRows):
+        for j in range(numCol):
+            if(i==0 and j==0):
+                combined[i][j] = str(nums[i][j])
+            else:
+                combined[2*i][2*j] = str(nums[i][j])
+    ##Iterate through logic file and add constraints to correct spot in combined array
+    for i in range(logRows):
+        (x,y) = (int(log[i][0]),int(log[i][1]))
+        (x2,y2) = (int(log[i][2]),int(log[i][3]))
+        
+        if((x==x2) and (y>y2)):
+            combined[2*x][2*y-1] = '>'
+        elif((x==x2) and (y<y2)):
+            combined[2*x][2*y+1] = '<'
+        elif((y==y2) and (x>x2)):
+            combined[2*x-1][2*y] = 'v'
+        elif((y==y2) and (x<x2)):
+            combined[2*x+1][2*y] = '^'
+
+    ##With all logic and numbers in correct locations, iterate through each row, concatonate elements together, and print each row.
+    for i in range(combinedRows):
+        row = ''
+        for j in range(combinedRows):
+            row = row + combined[i][j] + '   '
+        print(row)
+
+
+
+
 
 ##Creates the initial population with random values
 def initPop(nums):
