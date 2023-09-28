@@ -13,9 +13,14 @@ def main():
     ##Gets arrays from read in 
     numbers,logic,solution = ReadIn()
     ##Create the initial population
-    initPop(numbers)
+    pop = initPop(numbers)
+    popFitness = reward(pop,logic)
     max = max_score(numbers,logic) 
     printBoard(numbers,logic) 
+    print('max score: ', max)
+    print(popFitness)
+
+
      
 ##Function to read in values and returns them in 2D Arrays  
 def ReadIn():
@@ -125,8 +130,7 @@ def initPop(nums):
             for k in range(col):
                 if(pop[i][j][k]==0):
                     pop[i][j][k] = random.randint(1,rows)   
-    print(pop)
-
+    return pop
 
 
 def reward(pop,c):
@@ -152,7 +156,7 @@ def reward(pop,c):
                 reward = reward + 1
         #check constraints
         for i in range(c_dim[0]):
-            if pop[z,c[i,0],c[i,1]]<pop[z,c[i,2],c[i,3]]:
+            if pop[z,int(c[i,0]),int(c[i,1])]<pop[z,int(c[i,2]),int(c[i,3])]:
                 reward = reward + 2
         #print(reward)
         rewards[z] = reward
@@ -183,6 +187,8 @@ def performMutation(board,pop):
 
     return pop
 
+# def select(pop, max):
+#     print()
 
 main()
 
