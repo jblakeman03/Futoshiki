@@ -19,7 +19,7 @@ def main():
     # printBoard(numbers,logic) 
     # print('max score: ', max)
     # print(popFitness)
-    select(pop, popFitness, max)
+    selected = select(pop, popFitness, max)
 
 
      
@@ -202,7 +202,10 @@ def select(pop, popFitness, max):
         selectionProb.append(popFitness[i]/sum)
     for i in range(len(popFitness)):
         selected.append([np.random.choice(len(popFitness),p=selectionProb)])
+    return selected
 
+def repopulate(pop, selected):
+    ##Build this 
 
 main()
 
