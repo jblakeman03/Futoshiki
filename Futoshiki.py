@@ -109,8 +109,6 @@ def printBoard(nums, log):
 
 
 
-
-
 ##Creates the initial population with random values
 def initPop(nums):
     ##Create copy of nums array and casts values as ints
@@ -128,6 +126,8 @@ def initPop(nums):
                 if(pop[i][j][k]==0):
                     pop[i][j][k] = random.randint(1,rows)   
     print(pop)
+
+
 
 def reward(pop,c):
     #np.shape outputs the dimensions of an array (z,rows,columns)
@@ -168,7 +168,7 @@ def max_score(board,c):
     total = (2*y)+(2*x)
     return total
 
-def set(board,pop):
+def performMutation(board,pop):
 #np.nonzero indexs any nonzero values in the original board
 #np.transpose groups output by element rather than dimension
     index = np.transpose(np.nonzero(board))
