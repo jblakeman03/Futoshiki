@@ -16,9 +16,10 @@ def main():
     pop = initPop(numbers)
     popFitness = reward(pop,logic)
     max = max_score(numbers,logic) 
-    printBoard(numbers,logic) 
-    print('max score: ', max)
-    print(popFitness)
+    # printBoard(numbers,logic) 
+    # print('max score: ', max)
+    # print(popFitness)
+    select(pop, popFitness, max)
 
 
      
@@ -187,8 +188,21 @@ def performMutation(board,pop):
 
     return pop
 
-# def select(pop, max):
-#     print()
+##Function that uses roulette wheel selection method to select parents from a population
+def select(pop, popFitness, max):
+    ##Sum variable used to sum all fitness scores of population together
+    sum = 0
+    for i in range(len(popFitness)):
+        sum = sum + popFitness[i]
+    ##SelectionProb holds probability of selection which is individual fitness score/sum of all fitness scores 
+    selectionProb = []
+    ##Selected holds the index of pop of chosen parent
+    selected = []
+    for i in range(len(popFitness)):
+        selectionProb.append(popFitness[i]/sum)
+    for i in range(len(popFitness)):
+        selected.append([np.random.choice(len(popFitness),p=selectionProb)])
+
 
 main()
 
