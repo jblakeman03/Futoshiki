@@ -13,9 +13,15 @@ def main():
     ##Gets arrays from read in 
     numbers,logic,solution = ReadIn()
     ##Create the initial population
-    initPop(numbers)
+    pop = initPop(numbers)
+    popFitness = reward(pop,logic)
     max = max_score(numbers,logic) 
-    printBoard(numbers,logic) 
+    # printBoard(numbers,logic) 
+    # print('max score: ', max)
+    # print(popFitness)
+    select(pop, popFitness, max)
+
+
      
 ##Function to read in values and returns them in 2D Arrays  
 def ReadIn():
@@ -125,8 +131,7 @@ def initPop(nums):
             for k in range(col):
                 if(pop[i][j][k]==0):
                     pop[i][j][k] = random.randint(1,rows)   
-    print(pop)
-
+    return pop
 
 
 def reward(pop,c):
@@ -152,7 +157,7 @@ def reward(pop,c):
                 reward = reward + 1
         #check constraints
         for i in range(c_dim[0]):
-            if pop[z,c[i,0],c[i,1]]<pop[z,c[i,2],c[i,3]]:
+            if pop[z,int(c[i,0]),int(c[i,1])]<pop[z,int(c[i,2]),int(c[i,3])]:
                 reward = reward + 2
         #print(reward)
         rewards[z] = reward
@@ -182,6 +187,21 @@ def performMutation(board,pop):
             pop[z,index[x,0],index[x,1]]= board[index[x,0],index[x,1]]
 
     return pop
+
+##Function that uses roulette wheel selection method to select parents from a population
+def select(pop, popFitness, max):
+    ##Sum variable used to sum all fitness scores of population together
+    sum = 0
+    for i in range(len(popFitness)):
+        sum = sum + popFitness[i]
+    ##SelectionProb holds probability of selection which is individual fitness score/sum of all fitness scores 
+    selectionProb = []
+    ##Selected holds the index of pop of chosen parent
+    selected = []
+    for i in range(len(popFitness)):
+        selectionProb.append(popFitness[i]/sum)
+    for i in range(len(popFitness)):
+        selected.append([np.random.choice(len(popFitness),p=selectionProb)])
 
 
 main()
