@@ -20,7 +20,8 @@ def main():
     # print('max score: ', max)
     # print(popFitness)
     selected = select(pop, popFitness, max)
-    print(popFitness)
+    pop=reproduction(pop,selected)
+    
 
 
      
@@ -29,7 +30,7 @@ def ReadIn():
     ##Get the file name for the numbers
     ##Will then switch letters to get desired logic and solution files 
     ##fileName = input('Input desired number file (ex. f4x4): ')
-    numberFile = 'f3x3' + "n.txt"
+    numberFile = 'f4x4' + "n.txt"
     logicFile = numberFile.replace('n', 'l')
     solutionFile = numberFile.replace('n','s')
 
@@ -205,6 +206,33 @@ def select(pop, popFitness, max):
         selected.append([np.random.choice(len(popFitness),p=selectionProb)])
     return selected
 
+def reproduction(pop, selected):
+    selected = np.reshape(selected, (int(len(selected)/2),2))
+    newPop = np.array(pop)
+    (x,y) = selected.shape
+    middle = math.ceil(x/2)
+    for i in range(len(selected)):
+        (p1,p2) = (selected[i][0], selected[i][1])
+        # print('p1: ', p1)
+        # print('p2: ', p2)
+        child1 = pop[p1]
+        child2 = pop[p2]
+        # print('p1: ', pop[p1])
+        # print('p2: ', pop[p2])
+        # print('c1: ', child1)
+        # print('c2: ', child2)
+        for j in range(middle-1, len(child1[0])):
+            p1Row = pop[p2][j]
+            p2Row = pop[p1][j]
+            # print(p1Row)
+            # print(p2Row)
+            child1[j] = p2Row
+            child2[j] = p1Row  
+        # print('new c1: ', child1)
+        # print('new c2: ', child2) 
+        # print('p1: ', pop[p1])
+        # print('p2: ', pop[p2])
+    return newPop
 
 main()
 
