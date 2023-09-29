@@ -12,25 +12,45 @@ solution = []
 def main():
     ##Gets arrays from read in 
     numbers,logic,solution = ReadIn()
+    maxFitness = max_score(numbers,logic) 
+    printBoard(numbers,logic)
+    print()
+    print()
     ##Create the initial population
     pop = initPop(numbers)
-    popFitness = reward(pop,logic)
-    max = max_score(numbers,logic) 
-    # printBoard(numbers,logic) 
-    # print('max score: ', max)
-    # print(popFitness)
-    selected = select(pop, popFitness, max)
-    pop=reproduction(pop,selected)
-    
+    haveSolution = False
+    solutionIndex = -1
+    genCount = 0
+    while(haveSolution == False):
+        popFitness = reward(pop,logic)
+        if((genCount%100)==0):
+            print('Generation: ', genCount)
+            currentBest = np.argmax(popFitness)
+            printBoard(pop[currentBest], logic)
+
+        solutionIndex = findSolution(popFitness,maxFitness)
+        if(solutionIndex!=-1):
+            haveSolution  = True
+            print(popFitness)
+            print(maxFitness)
+            print(pop[solutionIndex])
+        selected = select(pop, popFitness, maxFitness)
+        pop = reproduction(pop, selected)
+        pop = mutation(pop)
+        genCount = genCount + 1
+
+    print('Solution found!')
+    printBoard(pop[solutionIndex], logic)
 
 
-     
+
+        
 ##Function to read in values and returns them in 2D Arrays  
 def ReadIn():
     ##Get the file name for the numbers
     ##Will then switch letters to get desired logic and solution files 
     ##fileName = input('Input desired number file (ex. f4x4): ')
-    numberFile = 'f4x4' + "n.txt"
+    numberFile = 'f3x3' + "n.txt"
     logicFile = numberFile.replace('n', 'l')
     solutionFile = numberFile.replace('n','s')
 
@@ -124,7 +144,7 @@ def initPop(nums):
     ##Gets number of rows and columns
     rows, col = np.shape(nums)
     ##Sets the population size
-    popSize = 10
+    popSize = 100
     ##Creates 3D array that holds individual elements that represent members of the popultion
     ##Loops through each 2D matrix and inserts a random value if there isnt a number given
     pop = np.zeros((popSize, rows, col))
@@ -187,7 +207,6 @@ def performMutation(board,pop):
         for x in range(index_dim[0]):
             #sets values in pop equal to values in board by index
             pop[z,index[x,0],index[x,1]]= board[index[x,0],index[x,1]]
-
     return pop
 
 ##Function that uses roulette wheel selection method to select parents from a population
@@ -196,6 +215,7 @@ def select(pop, popFitness, max):
     sum = 0
     for i in range(len(popFitness)):
         sum = sum + popFitness[i]
+
     ##SelectionProb holds probability of selection which is individual fitness score/sum of all fitness scores 
     selectionProb = []
     ##Selected holds the index of pop of chosen parent
@@ -205,6 +225,14 @@ def select(pop, popFitness, max):
     for i in range(len(popFitness)):
         selected.append([np.random.choice(len(popFitness),p=selectionProb)])
     return selected
+
+def findSolution(popFitness, max):
+    index = -1
+    for i in range(len(popFitness)):
+        if(popFitness[i]==max):
+            index = i
+    return index
+
 
 def reproduction(pop, selected):
     selected = np.reshape(selected, (int(len(selected)/2),2))
@@ -233,6 +261,16 @@ def reproduction(pop, selected):
         # print('p1: ', pop[p1])
         # print('p2: ', pop[p2])
     return newPop
+
+## mutation method
+def mutation(pop):
+    pop_dim = pop.shape
+    for z in range(pop_dim[0]):
+        for x in range(pop_dim[1]):
+            for y in range(pop_dim[2]):
+                if random.random()<0.1:
+                    pop[z,x,y] = random.randint(1,pop_dim[1])
+    return pop
 
 main()
 
