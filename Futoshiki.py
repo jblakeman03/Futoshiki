@@ -20,6 +20,7 @@ def main():
     # print('max score: ', max)
     # print(popFitness)
     selected = select(pop, popFitness, max)
+    print(popFitness)
 
 
      
@@ -204,8 +205,6 @@ def select(pop, popFitness, max):
         selected.append([np.random.choice(len(popFitness),p=selectionProb)])
     return selected
 
-def repopulate(pop, selected):
-    ##Build this 
 
 main()
 
