@@ -13,6 +13,7 @@ def main():
     ##Gets arrays from read in 
     numbers,logic,solution = ReadIn()
     maxFitness = max_score(numbers,logic) 
+    print(maxFitness)
     printBoard(numbers,logic)
     print()
     print()
@@ -33,6 +34,7 @@ def main():
         if(solutionIndex!=-1):
             haveSolution  = True
             print(popFitness)
+            print(genCount)
             print(maxFitness)
             print(pop[solutionIndex])
         selected = select(pop, popFitness, maxFitness)
@@ -93,6 +95,9 @@ def ReadIn():
     nums = np.array(nums).reshape(rows,rows)
     log = np.array(log).reshape(logRows,4)
     sol = np.array(sol).reshape(rows,rows)
+    nums = nums.astype(int)
+    log = log.astype(int)
+    sol = sol.astype(int)
 
     ##Returns temp arrays
     return nums, log, sol
@@ -101,6 +106,8 @@ def ReadIn():
 ##Basic approach is tp create an array with constraint rows between number rows and if there is a logic constraint put symbol between elements. 
 ##The iterate through each row, concatonate each element, then print the row
 def printBoard(nums, log):
+    nums = nums.astype(str)
+    log = log.astype(str)
     ##get number of rows for numbers and logic arrays
     (numRows, numCol) = np.shape(nums)
     (logRows, logCol) = np.shape(log)
@@ -146,7 +153,7 @@ def initPop(nums):
     ##Gets number of rows and columns
     rows, col = np.shape(nums)
     ##Sets the population size
-    popSize = 500
+    popSize = 1000
     ##Creates 3D array that holds individual elements that represent members of the popultion
     ##Loops through each 2D matrix and inserts a random value if there isnt a number given
     pop = np.zeros((popSize, rows, col))
@@ -174,15 +181,15 @@ def reward(pop,c):
             #converts the list to set and then tests with original list if contains same no. of elements.
             #sets can not contain duplicate entries so if len(set())=len() all entries are unique
             if len(set(pop[z,x,:])) == len(pop[z,x,:]):
-                reward = reward + 1
+                reward = reward + 2
         #check columns
         for y in range(pop_dim[2]):
             if len(set(pop[z,:,y])) == len(pop[z,:,y]):
-                reward = reward + 1
+                reward = reward + 2
         #check constraints
         for i in range(c_dim[0]):
             if pop[z,int(c[i,0]),int(c[i,1])]<pop[z,int(c[i,2]),int(c[i,3])]:
-                reward = reward + 2
+                reward = reward + 1
         #print(reward)
         rewards[z] = reward
     return rewards
@@ -193,8 +200,8 @@ def max_score(board,c):
     #constraints give a bigger reward than having a row/column correct
     x = math.sqrt(board.size)
     c_dim = c.shape
-    y = c_dim[1]
-    total = (2*y)+(2*x)
+    y = c_dim[0]
+    total = (1*y)+(4*x)
     return total
 
 def performMutation(board,pop):
