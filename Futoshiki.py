@@ -10,10 +10,11 @@ numbers = []
 logic = []
 solution = []
 def main():
-    ##Gets arrays from read in 
+    ##Gets arrays from read in and information from user 
     numbers,logic,solution = ReadIn()
     popSize = int(input('Enter desired population size: '))
     printFrequency = int(input('Print after how many generations (ex. 100): '))
+    ##Max fitness is the highest fitness for the given board
     maxFitness = max_score(numbers,logic) 
     print()
     print('Initial Board:')
@@ -23,39 +24,50 @@ def main():
 
     ##Create the initial population
     pop = initPop(numbers, popSize)
-    pop = performMutation(numbers,pop)
+    #haveSolution variable is used as sentinal and ends loop when solution is found
     haveSolution = False
+    #Solution index represents the index of population array where solution is ofund
     solutionIndex = -1
     genCount = 0
+    #prevMax represents the max fintess score of the previous generation. This is used to determine if early convergence is happening
     prevMax = 0
+    ##maxCounter is the number of times we have the previous generation has had the same fitness as the current one 
     maxCounter = 0
+    ##numResets is the number of times we have increased the mutation rate 
     numResets = 0
     while(haveSolution == False):
+        #Prob is the initial mutation rate 
         prob = 0.001
         popFitness = reward(pop,logic)
-  
+
+        ##current best reprsents the highest fitness member in current population
         currentBest = np.argmax(popFitness)
+        ##increase counter everytime we have repeat highest fitness 
         if(popFitness[currentBest]==prevMax):
             maxCounter = maxCounter + 1
         else: 
             prevMax = popFitness[currentBest]
-
+        ##if we repeat 25 times increase mutation 
         if(maxCounter > 25): 
             maxCounter = 0
             numResets = numResets + 1
             prob = 0.75
+        ##If increase mutation more than 5 times reset the population
         if(numResets > 5):
             pop = initPop(numbers, popSize)
             numResets = 0
+        ##Prints out data after a given amout of generations
         if((genCount%printFrequency)==0): 
             print('Current fitness: ', popFitness[currentBest])
             print('Generation: ', genCount)
             printBoard(pop[currentBest], logic)
 
+        ##Solution index represents if we have a solution and if so where at
         solutionIndex = findSolution(popFitness,maxFitness)
         if(solutionIndex!=-1):
             haveSolution  = True
             print('Generation: ', genCount)
+        ##If we dont have a solution go through basic GA steps
         if(haveSolution==False):
             selected = select(pop, popFitness, maxFitness)
             pop = reproduction(pop, selected,popFitness)
@@ -222,6 +234,7 @@ def max_score(board,c):
     y = c_dim[0]
     total = (1*y)+(4*x)
     return total
+
 
 def performMutation(board,pop):
 #np.nonzero indexs any nonzero values in the original board
