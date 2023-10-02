@@ -47,14 +47,15 @@ def main():
             maxCounter = maxCounter + 1
         else: 
             prevMax = popFitness[currentBest]
-        ##if we repeat 25 times increase mutation 
+        ##if we repeat 15 times increase mutation 
         if(maxCounter > 15): 
             maxCounter = 0
             numResets = numResets + 1
             prob = 0.75
         ##If increase mutation more than 5 times reset the population
-        if(numResets > 5):
+        if((genCount % 1000)==0):
             pop = initPop(numbers, popSize)
+            print('repop')
             numResets = 0
         ##Prints out data after a given amout of generations
         if((genCount%printFrequency)==0): 
