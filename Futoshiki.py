@@ -4,7 +4,6 @@
 import numpy as np
 import random
 import math
-import os
 
 numbers = []
 logic = []
@@ -28,6 +27,7 @@ def main():
     haveSolution = False
     #Solution index represents the index of population array where solution is ofund
     solutionIndex = -1
+    #genCount is the number of generations 
     genCount = 0
     #prevMax represents the max fintess score of the previous generation. This is used to determine if early convergence is happening
     prevMax = 0
@@ -37,7 +37,7 @@ def main():
     numResets = 0
     while(haveSolution == False):
         #Prob is the initial mutation rate 
-        prob = 0.001
+        prob = 0.0005
         popFitness = reward(pop,logic)
 
         ##current best reprsents the highest fitness member in current population
@@ -48,7 +48,7 @@ def main():
         else: 
             prevMax = popFitness[currentBest]
         ##if we repeat 25 times increase mutation 
-        if(maxCounter > 25): 
+        if(maxCounter > 15): 
             maxCounter = 0
             numResets = numResets + 1
             prob = 0.75
