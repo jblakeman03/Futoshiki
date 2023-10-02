@@ -12,34 +12,50 @@ solution = []
 def main():
     ##Gets arrays from read in 
     numbers,logic,solution = ReadIn()
+    popSize = int(input('Enter desired population size: '))
+    printFrequency = int(input('Print after how many generations (ex. 100): '))
     maxFitness = max_score(numbers,logic) 
     printBoard(numbers,logic)
     print()
     print()
+
     ##Create the initial population
-    pop = initPop(numbers)
+    pop = initPop(numbers, popSize)
     pop = performMutation(numbers,pop)
     haveSolution = False
     solutionIndex = -1
     genCount = 0
+    prevMax = 0
+    maxCounter = 0
     while(haveSolution == False):
+        prob = 0.002
         popFitness = reward(pop,logic)
-        if((genCount%100)==0):
+  
+        currentBest = np.argmax(popFitness)
+        if(popFitness[currentBest]==prevMax):
+            maxCounter = maxCounter + 1
+        else: 
+            prevMax = popFitness[currentBest]
+
+        if(maxCounter > 25): 
+            maxCounter = 0
+            prob = 0.65
+
+        if((genCount%printFrequency)==0): 
+            print('Current fitness: ', popFitness[currentBest])
             print('Generation: ', genCount)
-            currentBest = np.argmax(popFitness)
             printBoard(pop[currentBest], logic)
 
         solutionIndex = findSolution(popFitness,maxFitness)
         if(solutionIndex!=-1):
             haveSolution  = True
-            print(popFitness)
-            print(maxFitness)
-            print(pop[solutionIndex])
-        selected = select(pop, popFitness, maxFitness)
-        pop = reproduction(pop, selected)
-        pop = mutation(pop)
-        pop = performMutation(numbers,pop)
-        genCount = genCount + 1
+            print('Generation: ', genCount)
+        if(haveSolution==False):
+            selected = select(pop, popFitness, maxFitness)
+            pop = reproduction(pop, selected,popFitness)
+            pop = mutation(pop, prob)
+            pop = performMutation(numbers,pop)
+            genCount = genCount + 1
 
     print('Solution found!')
     printBoard(pop[solutionIndex], logic)
@@ -51,8 +67,8 @@ def main():
 def ReadIn():
     ##Get the file name for the numbers
     ##Will then switch letters to get desired logic and solution files 
-    ##fileName = input('Input desired number file (ex. f4x4): ')
-    numberFile = 'f4x4' + "n.txt"
+    fileName = input('Input desired number file (ex. f4x4): ')
+    numberFile =  fileName + "n.txt"
     logicFile = numberFile.replace('n', 'l')
     solutionFile = numberFile.replace('n','s')
 
@@ -93,6 +109,9 @@ def ReadIn():
     nums = np.array(nums).reshape(rows,rows)
     log = np.array(log).reshape(logRows,4)
     sol = np.array(sol).reshape(rows,rows)
+    nums = nums.astype(int)
+    log = log.astype(int)
+    sol = sol.astype(int)
 
     ##Returns temp arrays
     return nums, log, sol
@@ -101,6 +120,8 @@ def ReadIn():
 ##Basic approach is tp create an array with constraint rows between number rows and if there is a logic constraint put symbol between elements. 
 ##The iterate through each row, concatonate each element, then print the row
 def printBoard(nums, log):
+    nums = nums.astype(str)
+    log = log.astype(str)
     ##get number of rows for numbers and logic arrays
     (numRows, numCol) = np.shape(nums)
     (logRows, logCol) = np.shape(log)
@@ -140,13 +161,12 @@ def printBoard(nums, log):
 
 
 ##Creates the initial population with random values
-def initPop(nums):
+def initPop(nums, popSize):
     ##Create copy of nums array and casts values as ints
     nums = np.array(nums, dtype= int)
     ##Gets number of rows and columns
     rows, col = np.shape(nums)
     ##Sets the population size
-    popSize = 500
     ##Creates 3D array that holds individual elements that represent members of the popultion
     ##Loops through each 2D matrix and inserts a random value if there isnt a number given
     pop = np.zeros((popSize, rows, col))
@@ -174,15 +194,15 @@ def reward(pop,c):
             #converts the list to set and then tests with original list if contains same no. of elements.
             #sets can not contain duplicate entries so if len(set())=len() all entries are unique
             if len(set(pop[z,x,:])) == len(pop[z,x,:]):
-                reward = reward + 1
+                reward = reward + 2
         #check columns
         for y in range(pop_dim[2]):
             if len(set(pop[z,:,y])) == len(pop[z,:,y]):
-                reward = reward + 1
+                reward = reward + 2
         #check constraints
         for i in range(c_dim[0]):
             if pop[z,int(c[i,0]),int(c[i,1])]<pop[z,int(c[i,2]),int(c[i,3])]:
-                reward = reward + 2
+                reward = reward + 1
         #print(reward)
         rewards[z] = reward
     return rewards
@@ -193,8 +213,8 @@ def max_score(board,c):
     #constraints give a bigger reward than having a row/column correct
     x = math.sqrt(board.size)
     c_dim = c.shape
-    y = c_dim[1]
-    total = (2*y)+(2*x)
+    y = c_dim[0]
+    total = (1*y)+(4*x)
     return total
 
 def performMutation(board,pop):
@@ -237,43 +257,42 @@ def findSolution(popFitness, max):
     return index
 
 
-def reproduction(pop, selected):
+def reproduction(pop, selected,rewards):
     selected = np.reshape(selected, (int(len(selected)/2),2))
+    pop_dim = pop.shape
     newPop = np.array(pop)
-    (x,y) = selected.shape
-    middle = math.ceil(x/2)
+    count = 0 
     for i in range(len(selected)):
         (p1,p2) = (selected[i][0], selected[i][1])
-        # print('p1: ', p1)
-        # print('p2: ', p2)
-        child1 = pop[p1]
-        child2 = pop[p2]
-        # print('p1: ', pop[p1])
-        # print('p2: ', pop[p2])
-        # print('c1: ', child1)
-        # print('c2: ', child2)
-        for j in range(middle-1, len(child1[0])):
-            p1Row = pop[p2][j]
-            p2Row = pop[p1][j]
-            # print(p1Row)
-            # print(p2Row)
-            child1[j] = p2Row
-            child2[j] = p1Row  
-        # print('new c1: ', child1)
-        # print('new c2: ', child2) 
-        # print('p1: ', pop[p1])
-        # print('p2: ', pop[p2])
+        child1 = np.zeros([pop_dim[1],pop_dim[2]])
+        child2 = np.zeros([pop_dim[1],pop_dim[2]])
+        for x in range(pop_dim[1]):
+            for y in range(pop_dim[2]):
+                if random.random()<(rewards[p1]/(rewards[p1]+rewards[p2])):
+                    child1[x,y] = pop[p1,x,y]
+                else:
+                    child1[x,y] = pop[p2,x,y]
+                if random.random()<(rewards[p1]/(rewards[p1]+rewards[p2])):
+                    child2[x,y] = pop[p1,x,y]
+                else:
+                    child2[x,y] = pop[p2,x,y]
+        newPop[count] = child1
+        newPop[count+1] = child2
+        count += 2
     return newPop
 
 ## mutation method
-def mutation(pop):
+def mutation(pop, prob):
     pop_dim = pop.shape
     for z in range(pop_dim[0]):
         for x in range(pop_dim[1]):
             for y in range(pop_dim[2]):
-                if random.random()<0.1:
+                if random.random()<prob:
                     pop[z,x,y] = random.randint(1,pop_dim[1])
     return pop
+
+     
+
 
 main()
 
