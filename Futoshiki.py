@@ -278,14 +278,22 @@ def findSolution(popFitness, max):
 
 
 def reproduction(pop, selected,rewards):
+    #change selected parents matrix to a better shape [n,2]
     selected = np.reshape(selected, (int(len(selected)/2),2))
+    #store dimension
     pop_dim = pop.shape
-    newPop = np.array(pop)
+    #generate a new matrix with shape the same as pop
+    #newPop = np.array(pop)
+    newPop = np.zeros(pop.shape)
     count = 0 
     for i in range(len(selected)):
+        #store 2 parents
         (p1,p2) = (selected[i][0], selected[i][1])
+        #create two blank children matrix
         child1 = np.zeros([pop_dim[1],pop_dim[2]])
         child2 = np.zeros([pop_dim[1],pop_dim[2]])
+        #flip a coin based on ratio of fitness of parents to determine the value of each cell
+        #do same method twice because each set of parents creates 2 offspring
         for x in range(pop_dim[1]):
             for y in range(pop_dim[2]):
                 if random.random()<(rewards[p1]/(rewards[p1]+rewards[p2])):
@@ -296,6 +304,7 @@ def reproduction(pop, selected,rewards):
                     child2[x,y] = pop[p1,x,y]
                 else:
                     child2[x,y] = pop[p2,x,y]
+        #put newly generated children into newPop
         newPop[count] = child1
         newPop[count+1] = child2
         count += 2
@@ -303,6 +312,7 @@ def reproduction(pop, selected,rewards):
 
 ## mutation method
 def mutation(pop, prob):
+    #go through every cell in pop and flip a coin to determine if mutation takes place
     pop_dim = pop.shape
     for z in range(pop_dim[0]):
         for x in range(pop_dim[1]):
