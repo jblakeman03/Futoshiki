@@ -18,6 +18,7 @@ def main():
     print()
     ##Create the initial population
     pop = initPop(numbers)
+    pop = performMutation(numbers,pop)
     haveSolution = False
     solutionIndex = -1
     genCount = 0
@@ -37,6 +38,7 @@ def main():
         selected = select(pop, popFitness, maxFitness)
         pop = reproduction(pop, selected)
         pop = mutation(pop)
+        pop = performMutation(numbers,pop)
         genCount = genCount + 1
 
     print('Solution found!')
@@ -50,7 +52,7 @@ def ReadIn():
     ##Get the file name for the numbers
     ##Will then switch letters to get desired logic and solution files 
     ##fileName = input('Input desired number file (ex. f4x4): ')
-    numberFile = 'f3x3' + "n.txt"
+    numberFile = 'f4x4' + "n.txt"
     logicFile = numberFile.replace('n', 'l')
     solutionFile = numberFile.replace('n','s')
 
@@ -144,7 +146,7 @@ def initPop(nums):
     ##Gets number of rows and columns
     rows, col = np.shape(nums)
     ##Sets the population size
-    popSize = 100
+    popSize = 500
     ##Creates 3D array that holds individual elements that represent members of the popultion
     ##Loops through each 2D matrix and inserts a random value if there isnt a number given
     pop = np.zeros((popSize, rows, col))
@@ -198,6 +200,7 @@ def max_score(board,c):
 def performMutation(board,pop):
 #np.nonzero indexs any nonzero values in the original board
 #np.transpose groups output by element rather than dimension
+    board = board.astype(int)
     index = np.transpose(np.nonzero(board))
     pop_dim = pop.shape #3d
     index_dim = index.shape #2d
