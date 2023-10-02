@@ -15,6 +15,8 @@ def main():
     popSize = int(input('Enter desired population size: '))
     printFrequency = int(input('Print after how many generations (ex. 100): '))
     maxFitness = max_score(numbers,logic) 
+    print()
+    print('Initial Board:')
     printBoard(numbers,logic)
     print()
     print()
@@ -27,8 +29,9 @@ def main():
     genCount = 0
     prevMax = 0
     maxCounter = 0
+    numResets = 0
     while(haveSolution == False):
-        prob = 0.002
+        prob = 0.001
         popFitness = reward(pop,logic)
   
         currentBest = np.argmax(popFitness)
@@ -39,8 +42,11 @@ def main():
 
         if(maxCounter > 25): 
             maxCounter = 0
-            prob = 0.65
-
+            numResets = numResets + 1
+            prob = 0.75
+        if(numResets > 5):
+            pop = initPop(numbers, popSize)
+            numResets = 0
         if((genCount%printFrequency)==0): 
             print('Current fitness: ', popFitness[currentBest])
             print('Generation: ', genCount)
