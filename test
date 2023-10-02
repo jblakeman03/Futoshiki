@@ -12,36 +12,50 @@ solution = []
 def main():
     ##Gets arrays from read in 
     numbers,logic,solution = ReadIn()
+    popSize = int(input('Enter desired population size: '))
+    printFrequency = int(input('Print after how many generations (ex. 100): '))
     maxFitness = max_score(numbers,logic) 
-    print(maxFitness)
     printBoard(numbers,logic)
     print()
     print()
+
     ##Create the initial population
-    pop = initPop(numbers)
+    pop = initPop(numbers, popSize)
     pop = performMutation(numbers,pop)
     haveSolution = False
     solutionIndex = -1
     genCount = 0
+    prevMax = 0
+    maxCounter = 0
     while(haveSolution == False):
+        prob = 0.002
         popFitness = reward(pop,logic)
-        if((genCount%1000)==0):
+  
+        currentBest = np.argmax(popFitness)
+        if(popFitness[currentBest]==prevMax):
+            maxCounter = maxCounter + 1
+        else: 
+            prevMax = popFitness[currentBest]
+
+        if(maxCounter > 25): 
+            maxCounter = 0
+            prob = 0.65
+
+        if((genCount%printFrequency)==0): 
+            print('Current fitness: ', popFitness[currentBest])
             print('Generation: ', genCount)
-            currentBest = np.argmax(popFitness)
             printBoard(pop[currentBest], logic)
 
         solutionIndex = findSolution(popFitness,maxFitness)
         if(solutionIndex!=-1):
             haveSolution  = True
-            print(popFitness)
-            print(genCount)
-            print(maxFitness)
-            print(pop[solutionIndex])
-        selected = select(pop, popFitness, maxFitness)
-        pop = reproduction(pop, selected,popFitness)
-        pop = mutation(pop)
-        pop = performMutation(numbers,pop)
-        genCount = genCount + 1
+            print('Generation: ', genCount)
+        if(haveSolution==False):
+            selected = select(pop, popFitness, maxFitness)
+            pop = reproduction(pop, selected,popFitness)
+            pop = mutation(pop, prob)
+            pop = performMutation(numbers,pop)
+            genCount = genCount + 1
 
     print('Solution found!')
     printBoard(pop[solutionIndex], logic)
@@ -53,8 +67,8 @@ def main():
 def ReadIn():
     ##Get the file name for the numbers
     ##Will then switch letters to get desired logic and solution files 
-    ##fileName = input('Input desired number file (ex. f4x4): ')
-    numberFile = 'f5x5' + "n.txt"
+    fileName = input('Input desired number file (ex. f4x4): ')
+    numberFile =  fileName + "n.txt"
     logicFile = numberFile.replace('n', 'l')
     solutionFile = numberFile.replace('n','s')
 
@@ -147,13 +161,12 @@ def printBoard(nums, log):
 
 
 ##Creates the initial population with random values
-def initPop(nums):
+def initPop(nums, popSize):
     ##Create copy of nums array and casts values as ints
     nums = np.array(nums, dtype= int)
     ##Gets number of rows and columns
     rows, col = np.shape(nums)
     ##Sets the population size
-    popSize = 100
     ##Creates 3D array that holds individual elements that represent members of the popultion
     ##Loops through each 2D matrix and inserts a random value if there isnt a number given
     pop = np.zeros((popSize, rows, col))
@@ -269,14 +282,17 @@ def reproduction(pop, selected,rewards):
     return newPop
 
 ## mutation method
-def mutation(pop):
+def mutation(pop, prob):
     pop_dim = pop.shape
     for z in range(pop_dim[0]):
         for x in range(pop_dim[1]):
             for y in range(pop_dim[2]):
-                if random.random()<0.1:
+                if random.random()<prob:
                     pop[z,x,y] = random.randint(1,pop_dim[1])
     return pop
+
+     
+
 
 main()
 
