@@ -37,7 +37,7 @@ def main():
     numResets = 0
     while(haveSolution == False):
         #Prob is the initial mutation rate 
-        prob = 0.0005
+        prob = 0.001
         popFitness = reward(pop,logic)
 
         ##current best reprsents the highest fitness member in current population
@@ -252,6 +252,7 @@ def performMutation(board,pop):
             pop[z,index[x,0],index[x,1]]= board[index[x,0],index[x,1]]
     return pop
 
+
 ##Function that uses roulette wheel selection method to select parents from a population
 def select(pop, popFitness, max):
     ##Sum variable used to sum all fitness scores of population together
@@ -300,6 +301,7 @@ def reproduction(pop, selected,rewards):
         newPop[count+1] = child2
         count += 2
     return newPop
+
 
 ## mutation method
 def mutation(pop, prob):
